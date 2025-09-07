@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fall Detection — Neon Interactive Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff3cff;
+            --neon-cyan: #00fff6;
+            --neon-purple: #9d4edd;
+            --dark-bg: #0f0f1f;
+            --darker-bg: #0a0a14;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: #e6faff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        .backdrop {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(1200px 800px at 80% -10%, rgba(59, 130, 246, 0.15), transparent 70%),
+                radial-gradient(1000px 700px at 10% 120%, rgba(236, 72, 153, 0.12), transparent 70%),
+                linear-gradient(180deg, var(--darker-bg), var(--dark-bg));
+        }
+        
+        .glass {
+            background: rgba(20, 20, 40, 0.68);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.03) inset;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .sk-line {
+            stroke: var(--neon-cyan);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 220;
+            stroke-dashoffset: 220;
+            animation: draw 1.6s ease forwards;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 246, 0.4));
+        }
+        
+        .sk-node {
+            fill: var(--neon-pink);
+            stroke: var(--neon-cyan);
+            stroke-width: 1.5;
+            cursor: pointer;
+            transition: all 0.18s cubic-bezier(0.2, 0.9, 0.2, 1);
+            filter: drop-shadow(0 0 6px rgba(255, 0, 255, 0.5));
+        }
+        
+        .sk-node:hover {
+            transform: scale(1.35);
+            fill: var(--neon-cyan);
+            stroke: var(--neon-pink);
+            filter: drop-shadow(0 0 15px rgba(0, 255, 246, 0.8));
+        }
+        
+        .sk-node-hit-area {
+            fill: transparent;
+            stroke: transparent;
+            stroke-width: 20;
+            cursor: pointer;
+        }
+        
+        .tip {
+            position: absolute;
+            background: rgba(12, 14, 22, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #eaffff;
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            pointer-events: none;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translate(-50%, -120%);
+            transition: opacity 0.12s ease, transform 0.12s ease;
+            box-shadow: 0 6px 20px rgba(0, 255, 170, 0.06);
+            z-index: 10;
+        }
+        
+        .tip.show {
+            opacity: 1;
+        }
+        
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal.in {
+            opacity: 1;
+            transform: none;
+        }
+        
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem;
+            color: rgba(224, 231, 255, 0.8);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: var(--neon-cyan);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .metric-card {
+            background: rgba(20, 20, 40, 0.68);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.03) inset;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 255, 255, 0.1);
+        }
+        
+        .tab-button {
+            background: transparent;
+            color: rgba(224, 231, 255, 0.8);
+            padding: 0.7rem 1.4rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab-button.active {
+            background: rgba(0, 255, 246, 0.08);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 12px rgba(0, 255, 246, 0.15);
+        }
+        
+        .tab-button:hover:not(.active) {
+            background: rgba(255, 60, 255, 0.08);
+            color: var(--neon-pink);
+        }
+        
+        .content-section {
+            background: rgba(20, 20, 40, 0.68);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.03) inset;
+        }
+        
+        .highlight {
+            background: rgba(0, 255, 246, 0.08);
+            border-left: 4px solid var(--neon-cyan);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+        
+        .formula-container {
+            background: rgba(255, 60, 255, 0.08);
+            border-radius: 0.5rem;
+            padding: 1.3rem;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid rgba(255, 60, 255, 0.25);
+        }
+        
+        .katex { color: #eaffff; }
+        .katex-display { margin: 1rem 0; }
+        
+        .logo {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+            box-shadow: 0 0 15px rgba(255, 60, 255, 0.4);
+        }
+        
+        .navbar {
+            background: rgba(15, 15, 31, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 255, 246, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="backdrop"></div>
+    
+    <header class="sticky top-0 z-40 navbar">
+        <nav class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex gap-3 items-center">
+                <div class="logo w-10 h-10 rounded-xl grid place-items-center text-slate-900 font-bold text-lg">FD</div>
+                <span class="font-semibold text-cyan-200 text-xl">Fall Detection Framework</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="#keypoints" class="nav-link">Keypoints</a>
+                <a href="#normalization" class="nav-link">Normalization</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#performance" class="nav-link">Performance</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-10">
+        <!-- Hero Section -->
+        <section id="overview" class="text-center py-16">
+            <h1 class="text-5xl md:text-6xl font-extrabold gradient-text reveal">Real-time Fall Detection Framework</h1>
+            <p class="mt-4 text-cyan-100 text-xl max-w-3xl mx-auto reveal">A privacy-preserving system using spatiotemporal pose estimation with state-of-the-art performance</p>
+            
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="metric-card p-8 rounded-2xl reveal">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-slate-900">✓</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-cyan-300 uppercase tracking-wider">Accuracy</h3>
+                    <p class="mt-2 text-5xl font-extrabold text-cyan-400">97.80%</p>
+                    <p class="mt-2 text-cyan-200">Model's overall correctness across all predictions</p>
+                </div>
+                <div class="metric-card p-8 rounded-2xl reveal">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-pink-500 to-fuchsia-600 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-slate-900">🎯</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-cyan-300 uppercase tracking-wider">Precision</h3>
+                    <p class="mt-2 text-5xl font-extrabold text-pink-400">86.10%</p>
+                    <p class="mt-2 text-cyan-200">Low rate of false alarms, enhancing user trust</p>
+                    <div class="mt-4 p-2 bg-fuchsia-900/30 rounded-lg border border-fuchsia-500/30">
+                        <p class="text-xs text-fuchsia-200">Improved from 79% with additional data</p>
+                    </div>
+                </div>
+                <div class="metric-card p-8 rounded-2xl reveal">
+                    <div class="w-16 h-16 mx-auto bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-slate-900">🛡️</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-cyan-300 uppercase tracking-wider">Recall</h3>
+                    <p class="mt-2 text-5xl font-extrabold text-purple-400">93.82%</p>
+                    <p class="mt-2 text-cyan-200">High sensitivity in detecting genuine fall events</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Keypoint Extraction Section -->
+        <section id="keypoints" class="py-12">
+            <div class="content-section reveal">
+                <h3 class="text-3xl font-bold gradient-text mb-6">Privacy-Preserving Keypoint Extraction</h3>
+                
+                <p class="text-cyan-200 mb-4">Our fall detection system utilizes Google's MediaPipe Pose framework to extract 33 precise human body landmarks from each video frame. This approach transforms raw video into an abstract skeletal representation, ensuring privacy by discarding all visual imagery containing identifiable features.</p>
+                
+                <div class="highlight">
+                    <p class="text-cyan-200">The model learns from motion patterns rather than visual identity, making it both privacy-preserving and robust to variations in clothing, lighting, and camera angles.</p>
+                </div>
+                
+                <p class="text-cyan-200 mb-4">MediaPipe Pose uses a two-step detector-tracker ML pipeline that first locates the person(s) within the frame and then identifies the precise coordinates of 33 human body landmarks. This approach is highly efficient, achieving real-time performance even on mobile devices.</p>
+                
+                <p class="text-cyan-200 mb-4">The keypoints extracted include:</p>
+                <ul class="list-disc pl-6 text-cyan-200 space-y-2 mb-6">
+                    <li>Facial landmarks (nose, eyes, ears)</li>
+                    <li>Upper body points (shoulders, elbows, wrists)</li>
+                    <li>Lower body points (hips, knees, ankles)</li>
+                    <li>Hand and foot landmarks for detailed pose estimation</li>
+                </ul>
+            </div>
+
+            <h2 class="text-4xl font-extrabold text-center gradient-text reveal">Interactive Neon Skeleton</h2>
+            <p class="mt-4 text-cyan-100 text-center max-w-2xl mx-auto reveal">33 MediaPipe landmarks visualized in glowing neon. Hover over any keypoint to see its name and index.</p>
+
+            <div class="skeleton-wrap glass rounded-2xl mt-10 p-4 reveal" style="max-width: 820px; aspect-ratio: 1/1; margin: auto">
+                <svg class="sk-svg" viewBox="0 0 800 800" id="poseSvg" style="width: 100%; height: 100%"></svg>
+                <div id="tooltip" class="tip" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <!-- Pose Normalization Section -->
+        <section id="normalization" class="py-12">
+            <div class="content-section reveal">
+                <h3 class="text-3xl font-bold gradient-text mb-6">Pose Normalization</h3>
+                
+                <p class="text-cyan-200 mb-4">To achieve invariance to subject scale, position, and camera perspective, we apply a normalization transformation $\mathcal{N}$ to every keypoint set. This process is critical for ensuring the model focuses on the essential patterns of movement rather than superficial characteristics of the video.</p>
+                
+                <div class="formula-container">
+                    $$\displaystyle \hat{p}_i \,=\, \mathcal{N}(p_i) \,=\, \frac{p_i - p_c}{L_{\text{torso}}}$$
+                </div>
+                
+                <p class="text-cyan-200 mb-4">The normalization process consists of two sequential operations:</p>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mt-6 mb-3">1. Translation: Centering the Pose</h4>
+                <p class="text-cyan-200 mb-4">The pose is centered relative to the hip midpoint, which serves as a stable reference point for the body's position:</p>
+                
+                <div class="formula-container">
+                    $$\displaystyle p_c = \frac{p_{\text{LHip}} + p_{\text{RHip}}}{2}$$
+                </div>
+                
+                <p class="text-cyan-200 mb-4">Each keypoint is then translated by this centroid:</p>
+                <div class="formula-container">
+                    $$\displaystyle p_i' = p_i - p_c$$
+                </div>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mt-6 mb-3">2. Scaling: Normalizing by Torso Length</h4>
+                <p class="text-cyan-200 mb-4">The translated keypoints are scaled by the torso length to achieve size invariance:</p>
+                
+                <div class="formula-container">
+                    $$\displaystyle L_{\text{torso}} = \lVert p_{\text{ShoulderCenter}} - p_{\text{HipCenter}} \rVert_2$$
+                </div>
+                
+                <p class="text-cyan-200 mb-4">Where $\lVert \cdot \rVert_2$ is the Euclidean norm, and:</p>
+                <div class="formula-container">
+                    $$\displaystyle p_{\text{ShoulderCenter}} = \frac{p_{\text{LShoulder}} + p_{\text{RShoulder}}}{2}$$
+                    $$\displaystyle p_{\text{HipCenter}} = \frac{p_{\text{LHip}} + p_{\text{RHip}}}{2}$$
+                </div>
+                
+                <div class="highlight">
+                    <p class="text-cyan-200">This two-step normalization process ensures that the model receives consistent input regardless of the person's position in the frame, their physical size, or the camera's perspective, allowing it to focus exclusively on the movement patterns that indicate falls.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Engineering Section -->
+        <section id="features" class="py-12">
+            <div class="content-section reveal">
+                <h3 class="text-3xl font-bold gradient-text mb-6">Feature Engineering</h3>
+                
+                <p class="text-cyan-200 mb-4">From the normalized keypoints, we compute a 71-dimensional feature vector $\mathbf{f}(t)$ for each frame $t$. This feature vector captures both the static pose configuration and dynamic movement patterns essential for accurate fall detection.</p>
+                
+                <div class="formula-container">
+                    $$\displaystyle \mathbf{f}(t) = \big[\,\hat{p}(t),\,\dot{\hat{p}}(t),\,A_R(t),\,H_{\text{Hip}}(t),\,\theta_{\text{Torso}}(t)\,\big]$$
+                </div>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mt-6 mb-3">1. Normalized Positions ($\hat{p}$)</h4>
+                <p class="text-cyan-200 mb-4">The core postural information is represented by 34 floating-point values (17 keypoints × 2 coordinates) providing a scale- and position-invariant representation of the skeleton:</p>
+                
+                <div class="formula-container">
+                    $$\displaystyle \hat{p}(t) = [\hat{x}_0(t), \hat{y}_0(t), \hat{x}_1(t), \hat{y}_1(t), \ldots, \hat{x}_{16}(t), \hat{y}_{16}(t)]$$
+                </div>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mt-6 mb-3">2. Kinematic Features: Velocity ($\dot{\hat{p}}$)</h4>
+                <p class="text-cyan-200 mb-4">To capture motion dynamics, we compute the first-order derivative of position using backward difference:</p>
+                
+                <div class="formula-container">
+                    $$\displaystyle \dot{\hat{p}}_i(t) = \hat{p}_i(t) - \hat{p}_i(t-1)$$
+                </div>
+                
+                <p class="text-cyan-200 mb-4">This results in 34 additional features representing the instantaneous velocity of each keypoint, which is crucial for detecting rapid movements characteristic of falls.</p>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mt-6 mb-3">3. Geometric & Postural Features</h4>
+                <p class="text-cyan-200 mb-4">We compute four additional high-level features that provide contextual information about the body's configuration:</p>
+                
+                <ul class="list-disc pl-6 text-cyan-200 space-y-3 mb-6">
+                    <li>
+                        <strong>Aspect Ratio ($A_R$)</strong>: The width-to-height ratio of the normalized skeleton's bounding box:
+                        <div class="formula-container">
+                            $$\displaystyle A_R(t) = \frac{\max(\hat{x}_i(t)) - \min(\hat{x}_i(t))}{\max(\hat{y}_i(t)) - \min(\hat{y}_i(t))}$$
+                        </div>
+                        This feature distinguishes between upright (low value) and prone (high value) postures.
+                    </li>
+                    
+                    <li>
+                        <strong>Normalized Hip Height ($H_{\text{Hip}}$)</strong>: The mean of the normalized y-coordinates of the left and right hip:
+                        <div class="formula-container">
+                            $$\displaystyle H_{\text{Hip}}(t) = \frac{\hat{y}_{\text{LHip}}(t) + \hat{y}_{\text{RHip}}(t)}{2}$$
+                        </div>
+                        This provides a direct signal of the person's vertical position.
+                    </li>
+                    
+                    <li>
+                        <strong>Torso Angle ($\theta_{\text{Torso}}$)</strong>: The angle of the vector from hip center to shoulder center:
+                        <div class="formula-container">
+                            $$\displaystyle \theta_{\text{Torso}}(t) = \arctan\left(\frac{y_{\text{ShoulderCenter}}(t) - y_{\text{HipCenter}}(t)}{x_{\text{ShoulderCenter}}(t) - x_{\text{HipCenter}}(t)}\right)$$
+                        </div>
+                        This captures leaning and bending motions that often precede falls.
+                    </li>
+                </ul>
+                
+                <div class="highlight">
+                    <p class="text-cyan-200">The combination of these normalized positional data, kinematic features, and contextual geometric information creates a rich feature space that enables the model to distinguish falls from activities of daily living with high accuracy while maintaining robustness to variations in individual body proportions and camera perspectives.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Section -->
+        <section id="performance" class="py-12">
+            <div class="content-section reveal">
+                <h3 class="text-3xl font-bold gradient-text mb-6">Model Performance & Comparison</h3>
+                
+                <p class="text-cyan-200 mb-6">We evaluated several deep learning architectures for fall detection, with the CNN-GRU model achieving the best balance of accuracy, precision, and recall. The model was trained on a curated dataset of 1,487 videos with careful attention to class imbalance.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-4">Class Weighting</h4>
+                        <p class="text-cyan-200 mb-4">To handle class imbalance, we calculated class weights during training:</p>
+                        <div class="bg-gray-800/50 p-4 rounded-lg">
+                            <p class="font-mono text-sm text-cyan-200">Class Weights: {0: 0.557, 1: 4.866}</p>
+                        </div>
+                        <p class="text-cyan-200 mt-4 text-sm">This weighting gives more importance to the minority class (falls) during training to prevent model bias toward the majority class.</p>
+                    </div>
+                    
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-4">Precision Improvement</h4>
+                        <p class="text-cyan-200">Our precision improved significantly from 79% to 86.10% through:</p>
+                        <ul class="list-disc pl-5 text-cyan-200 mt-2 space-y-1">
+                            <li>Adding more diverse training data, especially hard negatives</li>
+                            <li>Implementing class weighting to handle imbalanced data</li>
+                            <li>Refining the feature engineering pipeline</li>
+                        </ul>
+                        <p class="text-cyan-200 mt-2">With additional camera angles and data, we estimate precision could reach 96%.</p>
+                    </div>
+                </div>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mb-4">Model Architecture Comparison</h4>
+                <div class="flex justify-center my-6 space-x-2 bg-gray-800 p-1 rounded-full w-fit mx-auto">
+                    <button class="tab-button active" data-metric="accuracy">Accuracy</button>
+                    <button class="tab-button" data-metric="precision">Precision</button>
+                    <button class="tab-button" data-metric="recall">Recall</button>
+                </div>
+                <div class="chart-container" style="position: relative; height: 400px; max-width: 800px; margin: auto">
+                    <canvas id="modelComparisonChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-10 border-t border-cyan-500/10 text-center text-cyan-200 mt-16">
+        <p>© <span id="year"></span> Fall Detection Framework. Technical report by Younes Farhat and Mohamed Ghellab.</p>
+    </footer>
+
+    <script>
+        // Ensure KaTeX auto-render runs after DOM and the KaTeX scripts are available.
+        function renderKatexWhenReady() {
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
+                    throwOnError: false,
+                    errorColor: '#ff5555'
+                });
+                return;
+            }
+            setTimeout(renderKatexWhenReady, 50);
+        }
+        document.addEventListener('DOMContentLoaded', renderKatexWhenReady);
+
+        // IntersectionObserver for reveal animations
+        const obs = new IntersectionObserver((entries) => { 
+            entries.forEach(ent => { 
+                if (ent.isIntersecting) { 
+                    ent.target.classList.add('in'); 
+                    obs.unobserve(ent.target); 
+                } 
+            }); 
+        }, { threshold: 0.12 });
+        
+        document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // --- Skeleton (33 landmarks) ---
+        const labels = [
+            'Nose (0)','Left Eye Inner (1)','Left Eye (2)','Left Eye Outer (3)','Right Eye Inner (4)','Right Eye (5)','Right Eye Outer (6)',
+            'Left Ear (7)','Right Ear (8)','Mouth Left (9)','Mouth Right (10)',
+            'Left Shoulder (11)','Right Shoulder (12)','Left Elbow (13)','Right Elbow (14)','Left Wrist (15)','Right Wrist (16)',
+            'Left Pinky (17)','Right Pinky (18)','Left Index (19)','Right Index (20)','Left Thumb (21)','Right Thumb (22)',
+            'Left Hip (23)','Right Hip (24)','Left Knee (25)','Right Knee (26)','Left Ankle (27)','Right Ankle (28)',
+            'Left Heel (29)','Right Heel (30)','Left Foot Index (31)','Right Foot Index (32)'
+        ];
+
+        // Neutral coordinates (SVG 800x800)
+        const coords = [
+            [400,110],[385,115],[370,120],[355,125],[415,115],[430,120],[445,125],
+            [345,140],[455,140],[380,150],[420,150],
+            [320,220],[480,220],[270,340],[530,340],[250,460],[550,460],
+            [240,480],[560,480],[260,470],[540,470],[280,450],[520,450],
+            [340,340],[460,340],[330,480],[470,480],[320,620],[480,620],
+            [315,650],[485,650],[310,670],[490,670]
+        ];
+
+        const edges = [
+            [0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[3,7],[6,8],[9,10],
+            [11,12],[11,13],[13,15],[15,17],[15,19],[15,21],[12,14],[14,16],[16,18],[16,20],[16,22],
+            [11,23],[12,24],[23,24],[23,25],[25,27],[27,29],[27,31],[24,26],[26,28],[28,30],[28,32]
+        ];
+
+        const svg = document.getElementById('poseSvg');
+        const tip = document.getElementById('tooltip');
+
+        // Draw edges
+        const lineEls = edges.map(([a,b]) => {
+            const [x1,y1] = coords[a]; const [x2,y2] = coords[b];
+            const l = document.createElementNS('http://www.w3.org/2000/svg','line');
+            l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+            l.setAttribute('class','sk-line'); svg.appendChild(l); return l;
+        });
+
+        // Draw nodes and interactions
+        const nodeEls = coords.map(([x,y],i) => {
+            // Create hit area (invisible larger circle)
+            const hitArea = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            hitArea.setAttribute('cx', x); hitArea.setAttribute('cy', y); hitArea.setAttribute('r', 15);
+            hitArea.setAttribute('class', 'sk-node-hit-area');
+            hitArea.setAttribute('data-index', i);
+            svg.appendChild(hitArea);
+            
+            // Create visible circle
+            const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 6);
+            c.setAttribute('class', 'sk-node');
+            c.setAttribute('data-index', i); c.setAttribute('data-label', labels[i]);
+            svg.appendChild(c);
+
+            // Add event listeners to both hit area and visible circle
+            const elements = [hitArea, c];
+            
+            elements.forEach(el => {
+                el.addEventListener('mousemove', (ev) => {
+                    // position tooltip relative to the skeleton container
+                    const bbox = svg.getBoundingClientRect();
+                    const left = ev.clientX - bbox.left; 
+                    const top = ev.clientY - bbox.top;
+                    tip.textContent = labels[i]; 
+                    tip.style.left = left + 'px'; 
+                    tip.style.top = top + 'px'; 
+                    tip.classList.add('show');
+
+                    // highlight connected lines and node
+                    lineEls.forEach(l => l.style.opacity = 0.2);
+                    nodeEls.forEach(n => {
+                        const circle = n.querySelector('.sk-node') || n;
+                        circle.style.opacity = 0.6;
+                    });
+                    c.style.opacity = 1; 
+                    c.style.transform = 'scale(1.25)';
+                    edges.forEach(([a,b], idx) => { 
+                        if (a===i || b===i) { 
+                            lineEls[idx].style.opacity = 1; 
+                        } 
+                    });
+                });
+
+                el.addEventListener('mouseleave', () => {
+                    tip.classList.remove('show');
+                    lineEls.forEach(l => l.style.opacity = 1);
+                    nodeEls.forEach(n => {
+                        const circle = n.querySelector('.sk-node') || n;
+                        circle.style.opacity = 1; 
+                        circle.style.transform = '';
+                    });
+                });
+            });
+
+            return {hitArea, c};
+        });
+
+        // Model comparison chart
+        const modelData = { 
+            "Bi-LSTM": { accuracy: 0.9609, precision: 0.7973, recall: 0.9550 }, 
+            "CNN-GRU": { accuracy: 0.9780, precision: 0.8610, recall: 0.9382 }, 
+            "TCN": { accuracy: 0.9623, precision: 0.8153, recall: 0.9338 }, 
+            "Transformer": { accuracy: 0.9075, precision: 0.6224, recall: 0.8103 } 
+        };
+
+        let modelChart = null;
+
+        function renderModelComparisonChart(metric = 'accuracy') {
+            const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+            if (modelChart) { modelChart.destroy(); }
+            modelChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(modelData),
+                    datasets: [{
+                        label: metric.charAt(0).toUpperCase() + metric.slice(1),
+                        data: Object.values(modelData).map(d => d[metric]),
+                        backgroundColor: [
+                            'rgba(255, 60, 255, 0.7)',
+                            'rgba(0, 255, 246, 0.7)',
+                            'rgba(135, 60, 255, 0.7)',
+                            'rgba(255, 150, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(255, 60, 255)',
+                            'rgb(0, 255, 246)',
+                            'rgb(135, 60, 255)',
+                            'rgb(255, 150, 60)'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { 
+                            callbacks: { 
+                                label: (c) => `${c.dataset.label}: ${(c.raw * 100).toFixed(2)}%` 
+                            },
+                            backgroundColor: 'rgba(12,14,22,0.95)',
+                            titleColor: '#00fff6',
+                            bodyColor: '#eaffff',
+                            borderColor: 'rgba(0,255,246,0.5)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            max: 1.0, 
+                            ticks: { 
+                                callback: (v) => v * 100 + '%',
+                                color: '#e6faff'
+                            },
+                            grid: {
+                                color: 'rgba(230, 250, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#e6faff'
+                            },
+                            grid: {
+                                color: 'rgba(230, 250, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Metric buttons
+        const metricButtons = document.querySelectorAll('[data-metric]');
+        metricButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                metricButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+                renderModelComparisonChart(button.dataset.metric);
+            });
+        });
+
+        // Initialize
+        renderModelComparisonChart();
+    </script>
+</body>
+</html>
