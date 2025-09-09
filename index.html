@@ -222,6 +222,53 @@
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0, 255, 246, 0.15);
         }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(20, 20, 40, 0.68);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 255, 255, 0.1);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .notification-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .notification-item {
+            background: rgba(255, 60, 255, 0.08);
+            border: 1px solid rgba(255, 60, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -239,6 +286,7 @@
                 <a href="#normalization" class="nav-link">Normalization</a>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#performance" class="nav-link">Performance</a>
+                <a href="#main-website" class="nav-link">Main Website</a>
             </div>
         </nav>
     </header>
@@ -457,6 +505,94 @@
                 </div>
             </div>
         </section>
+
+        <!-- Main Website Features Section -->
+        <section id="main-website" class="py-12">
+            <div class="content-section reveal">
+                <h3 class="text-3xl font-bold gradient-text mb-6">Our Complete Fall Detection Platform</h3>
+                
+                <p class="text-cyan-200 mb-6">This showcase demonstrates the core technology behind our fall detection system. Our complete platform includes a comprehensive web application with advanced features for monitoring, detection, and alerting.</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-gradient-to-br from-cyan-400 to-cyan-600">
+                            📊
+                        </div>
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-2">Dashboard</h4>
+                        <p class="text-cyan-200">Monitor fall detection statistics and view reports with an intuitive dashboard that provides real-time insights and historical data analysis.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon bg-gradient-to-br from-pink-500 to-fuchsia-600">
+                            📹
+                        </div>
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-2">Video Upload</h4>
+                        <p class="text-cyan-200">Upload recorded videos for fall detection analysis. Our system processes the video and provides detailed reports on detected fall events.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon bg-gradient-to-br from-purple-500 to-indigo-600">
+                            📱
+                        </div>
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-2">Live Camera</h4>
+                        <p class="text-cyan-200">Enable real-time fall detection using your device's camera. The system analyzes live video streams to detect falls as they happen.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon bg-gradient-to-br from-green-500 to-teal-600">
+                            📋
+                        </div>
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-2">Event Reports</h4>
+                        <p class="text-cyan-200">Access detailed reports of all detected fall events, including timestamps, confidence scores, and video evidence when available.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon bg-gradient-to-br from-yellow-500 to-orange-600">
+                            👤
+                        </div>
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-2">Account Management</h4>
+                        <p class="text-cyan-200">Customize your experience with account settings, notification preferences, and alert system configuration.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon bg-gradient-to-br from-red-500 to-pink-600">
+                            🔔
+                        </div>
+                        <h4 class="text-xl font-semibold text-cyan-300 mb-2">Notification System</h4>
+                        <p class="text-cyan-200">Receive immediate alerts through multiple channels when a fall is detected, ensuring timely response to emergencies.</p>
+                    </div>
+                </div>
+                
+                <div class="highlight mt-8">
+                    <p class="text-cyan-200">The video upload and live camera features are integrated with our comprehensive notification system that sends fall detection alerts to Telegram, Gmail, and Twilio for immediate response.</p>
+                </div>
+                
+                <h4 class="text-xl font-semibold text-cyan-300 mt-10 mb-4">Notification Channels</h4>
+                <div class="notification-grid">
+                    <div class="notification-item">
+                        <div class="text-2xl mb-2">📨</div>
+                        <h5 class="font-semibold text-cyan-300">Gmail</h5>
+                        <p class="text-sm text-cyan-200">Email alerts with detailed event information</p>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="text-2xl mb-2">💬</div>
+                        <h5 class="font-semibold text-cyan-300">Telegram</h5>
+                        <p class="text-sm text-cyan-200">Instant messaging notifications</p>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="text-2xl mb-2">📞</div>
+                        <h5 class="font-semibold text-cyan-300">Twilio</h5>
+                        <p class="text-sm text-cyan-200">SMS and voice call alerts</p>
+                    </div>
+                </div>
+                
+                <div class="mt-10 p-4 bg-gradient-to-r from-cyan-900/30 to-purple-900/30 rounded-xl border border-cyan-500/20">
+                    <p class="text-center text-cyan-200 italic">"With the right tools and more time, this project can become bigger and awesome in every corner"</p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="py-10 border-t border-cyan-500/10 text-center text-cyan-200 mt-16">
@@ -506,183 +642,170 @@
             'Left Heel (29)','Right Heel (30)','Left Foot Index (31)','Right Foot Index (32)'
         ];
 
-        // Neutral coordinates (SVG 800x800)
-        const coords = [
-            [400,110],[385,115],[370,120],[355,125],[415,115],[430,120],[445,125],
-            [345,140],[455,140],[380,150],[420,150],
-            [320,220],[480,220],[270,340],[530,340],[250,460],[550,460],
-            [240,480],[560,480],[260,470],[540,470],[280,450],[520,450],
-            [340,340],[460,340],[330,480],[470,480],[320,620],[480,620],
-            [315,650],[485,650],[310,670],[490,670]
+        // Connections (edges) between landmarks
+        const connections = [
+            [0,1],[1,2],[2,3],[3,7],[0,4],[4,5],[5,6],[6,8],[9,10], // Face
+            [11,12],[11,13],[13,15],[15,17],[15,19],[19,21],[15,21], // Left arm
+            [12,14],[14,16],[16,18],[16,20],[20,22],[16,22], // Right arm
+            [11,23],[12,24],[23,24],[23,25],[25,27],[27,29],[29,31],[27,31], // Left leg
+            [24,26],[26,28],[28,30],[30,32],[28,32] // Right leg
         ];
 
-        const edges = [
-            [0,1],[1,2],[2,3],[0,4],[4,5],[5,6],[3,7],[6,8],[9,10],
-            [11,12],[11,13],[13,15],[15,17],[15,19],[15,21],[12,14],[14,16],[16,18],[16,20],[16,22],
-            [11,23],[12,24],[23,24],[23,25],[25,27],[27,29],[27,31],[24,26],[26,28],[28,30],[28,32]
+        // Landmark positions (normalized to 0-1)
+        const landmarkPositions = [
+            [0.5, 0.15], // Nose
+            [0.45, 0.13], [0.43, 0.13], [0.4, 0.14], // Left eye
+            [0.55, 0.13], [0.57, 0.13], [0.6, 0.14], // Right eye
+            [0.38, 0.16], [0.62, 0.16], // Ears
+            [0.45, 0.22], [0.55, 0.22], // Mouth
+            
+            [0.35, 0.3], [0.65, 0.3], // Shoulders
+            [0.3, 0.45], [0.7, 0.45], // Elbows
+            [0.25, 0.6], [0.75, 0.6], // Wrists
+            [0.22, 0.65], [0.78, 0.65], // Pinkies
+            [0.23, 0.55], [0.77, 0.55], // Index fingers
+            [0.28, 0.55], [0.72, 0.55], // Thumbs
+            
+            [0.4, 0.55], [0.6, 0.55], // Hips
+            [0.35, 0.75], [0.65, 0.75], // Knees
+            [0.3, 0.95], [0.7, 0.95], // Ankles
+            [0.28, 0.95], [0.72, 0.95], // Heels
+            [0.25, 0.95], [0.75, 0.95]  // Foot indices
         ];
 
+        // Scale positions to SVG viewBox (800x800)
+        const scalePos = (pos) => [pos[0] * 700 + 50, pos[1] * 700 + 50];
+        
         const svg = document.getElementById('poseSvg');
-        const tip = document.getElementById('tooltip');
-
-        // Draw edges
-        const lineEls = edges.map(([a,b]) => {
-            const [x1,y1] = coords[a]; const [x2,y2] = coords[b];
-            const l = document.createElementNS('http://www.w3.org/2000/svg','line');
-            l.setAttribute('x1', x1); l.setAttribute('y1', y1); l.setAttribute('x2', x2); l.setAttribute('y2', y2);
-            l.setAttribute('class','sk-line'); svg.appendChild(l); return l;
+        const tooltip = document.getElementById('tooltip');
+        
+        // Draw connections (lines)
+        connections.forEach(([i1, i2]) => {
+            const [x1, y1] = scalePos(landmarkPositions[i1]);
+            const [x2, y2] = scalePos(landmarkPositions[i2]);
+            
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.classList.add('sk-line');
+            line.style.animationDelay = `${Math.random() * 0.5}s`;
+            svg.appendChild(line);
         });
-
-        // Draw nodes and interactions
-        const nodeEls = coords.map(([x,y],i) => {
-            // Create hit area (invisible larger circle)
-            const hitArea = document.createElementNS('http://www.w3.org/2000/svg','circle');
-            hitArea.setAttribute('cx', x); hitArea.setAttribute('cy', y); hitArea.setAttribute('r', 15);
-            hitArea.setAttribute('class', 'sk-node-hit-area');
+        
+        // Draw landmarks (nodes)
+        landmarkPositions.forEach((pos, i) => {
+            const [cx, cy] = scalePos(pos);
+            
+            // Create the visible node
+            const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            node.setAttribute('cx', cx);
+            node.setAttribute('cy', cy);
+            node.setAttribute('r', 8);
+            node.classList.add('sk-node');
+            node.setAttribute('data-index', i);
+            svg.appendChild(node);
+            
+            // Create a larger transparent hit area
+            const hitArea = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            hitArea.setAttribute('cx', cx);
+            hitArea.setAttribute('cy', cy);
+            hitArea.setAttribute('r', 20);
+            hitArea.classList.add('sk-node-hit-area');
             hitArea.setAttribute('data-index', i);
             svg.appendChild(hitArea);
             
-            // Create visible circle
-            const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-            c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 6);
-            c.setAttribute('class', 'sk-node');
-            c.setAttribute('data-index', i); c.setAttribute('data-label', labels[i]);
-            svg.appendChild(c);
-
-            // Add event listeners to both hit area and visible circle
-            const elements = [hitArea, c];
-            
-            elements.forEach(el => {
-                el.addEventListener('mousemove', (ev) => {
-                    // position tooltip relative to the skeleton container
-                    const bbox = svg.getBoundingClientRect();
-                    const left = ev.clientX - bbox.left; 
-                    const top = ev.clientY - bbox.top;
-                    tip.textContent = labels[i]; 
-                    tip.style.left = left + 'px'; 
-                    tip.style.top = top + 'px'; 
-                    tip.classList.add('show');
-
-                    // highlight connected lines and node
-                    lineEls.forEach(l => l.style.opacity = 0.2);
-                    nodeEls.forEach(n => {
-                        const circle = n.querySelector('.sk-node') || n;
-                        circle.style.opacity = 0.6;
-                    });
-                    c.style.opacity = 1; 
-                    c.style.transform = 'scale(1.25)';
-                    edges.forEach(([a,b], idx) => { 
-                        if (a===i || b===i) { 
-                            lineEls[idx].style.opacity = 1; 
-                        } 
-                    });
-                });
-
-                el.addEventListener('mouseleave', () => {
-                    tip.classList.remove('show');
-                    lineEls.forEach(l => l.style.opacity = 1);
-                    nodeEls.forEach(n => {
-                        const circle = n.querySelector('.sk-node') || n;
-                        circle.style.opacity = 1; 
-                        circle.style.transform = '';
-                    });
-                });
+            // Add event listeners to the hit area
+            hitArea.addEventListener('mouseenter', (e) => {
+                const idx = e.target.getAttribute('data-index');
+                tooltip.textContent = labels[idx];
+                tooltip.classList.add('show');
+                
+                // Position tooltip
+                const rect = svg.getBoundingClientRect();
+                const scaleX = rect.width / 800;
+                const scaleY = rect.height / 800;
+                
+                tooltip.style.left = `${cx * scaleX + rect.left}px`;
+                tooltip.style.top = `${cy * scaleY + rect.top - 10}px`;
             });
-
-            return {hitArea, c};
+            
+            hitArea.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('show');
+            });
         });
 
-        // Model comparison chart
-        const modelData = { 
-            "Bi-LSTM": { accuracy: 0.9609, precision: 0.7973, recall: 0.9550 }, 
-            "CNN-GRU": { accuracy: 0.9780, precision: 0.8610, recall: 0.9382 }, 
-            "TCN": { accuracy: 0.9623, precision: 0.8153, recall: 0.9338 }, 
-            "Transformer": { accuracy: 0.9075, precision: 0.6224, recall: 0.8103 } 
+        // Model Comparison Chart
+        const modelData = {
+            accuracy: [0.92, 0.94, 0.95, 0.978],
+            precision: [0.78, 0.82, 0.83, 0.861],
+            recall: [0.89, 0.91, 0.92, 0.9382]
         };
-
-        let modelChart = null;
-
-        function renderModelComparisonChart(metric = 'accuracy') {
-            const ctx = document.getElementById('modelComparisonChart').getContext('2d');
-            if (modelChart) { modelChart.destroy(); }
-            modelChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(modelData),
-                    datasets: [{
-                        label: metric.charAt(0).toUpperCase() + metric.slice(1),
-                        data: Object.values(modelData).map(d => d[metric]),
-                        backgroundColor: [
-                            'rgba(255, 60, 255, 0.7)',
-                            'rgba(0, 255, 246, 0.7)',
-                            'rgba(135, 60, 255, 0.7)',
-                            'rgba(255, 150, 60, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgb(255, 60, 255)',
-                            'rgb(0, 255, 246)',
-                            'rgb(135, 60, 255)',
-                            'rgb(255, 150, 60)'
-                        ],
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { 
-                            callbacks: { 
-                                label: (c) => `${c.dataset.label}: ${(c.raw * 100).toFixed(2)}%` 
-                            },
-                            backgroundColor: 'rgba(12,14,22,0.95)',
-                            titleColor: '#00fff6',
-                            bodyColor: '#eaffff',
-                            borderColor: 'rgba(0,255,246,0.5)',
-                            borderWidth: 1
-                        }
-                    },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true, 
-                            max: 1.0, 
-                            ticks: { 
-                                callback: (v) => v * 100 + '%',
-                                color: '#e6faff'
-                            },
-                            grid: {
-                                color: 'rgba(230, 250, 255, 0.1)'
-                            }
+        
+        const chartCtx = document.getElementById('modelComparisonChart').getContext('2d');
+        const chart = new Chart(chartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['CNN', 'LSTM', 'GRU', 'CNN-GRU (Ours)'],
+                datasets: [{
+                    label: 'Accuracy',
+                    data: modelData.accuracy,
+                    backgroundColor: 'rgba(0, 255, 246, 0.7)',
+                    borderColor: 'rgba(0, 255, 246, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        ticks: {
+                            color: '#eaffff',
+                            callback: value => (value * 100).toFixed(0) + '%'
                         },
-                        x: {
-                            ticks: {
-                                color: '#e6faff'
-                            },
-                            grid: {
-                                color: 'rgba(230, 250, 255, 0.1)'
-                            }
-                        }
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#eaffff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#eaffff' }
                     }
                 }
-            });
-        }
-
-        // Metric buttons
-        const metricButtons = document.querySelectorAll('[data-metric]');
-        metricButtons.forEach(button => {
+            }
+        });
+        
+        // Tab switching for model comparison
+        document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
-                metricButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                });
+                document.querySelector('.tab-button.active').classList.remove('active');
                 button.classList.add('active');
-                renderModelComparisonChart(button.dataset.metric);
+                
+                const metric = button.getAttribute('data-metric');
+                const colors = {
+                    accuracy: 'rgba(0, 255, 246, 0.7)',
+                    precision: 'rgba(255, 60, 255, 0.7)',
+                    recall: 'rgba(157, 78, 221, 0.7)'
+                };
+                
+                chart.data.datasets = [{
+                    label: metric.charAt(0).toUpperCase() + metric.slice(1),
+                    data: modelData[metric],
+                    backgroundColor: colors[metric],
+                    borderColor: colors[metric].replace('0.7', '1'),
+                    borderWidth: 1
+                }];
+                
+                chart.update();
             });
         });
-
-        // Initialize
-        renderModelComparisonChart();
     </script>
 </body>
 </html>
