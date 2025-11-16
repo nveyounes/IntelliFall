@@ -132,7 +132,6 @@ We welcome contributions! If you have suggestions for performance improvements, 
 ## 👨‍💻 Authors & Acknowledgments
 
 * **Younes Farhat** ([@nveyounes](https://github.com/nveyounes))
-* **Mohamed Ghellab**
 * **Technical Report:** Fall Detection Framework
 
 ---
